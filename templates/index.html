@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐄 Unified Cattle Classification System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            margin-bottom: 25px;
+        }
+
+        .card-header h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            color: #7f8c8d;
+        }
+
+        /* Model Selection */
+        .model-selector {
+            margin-bottom: 25px;
+        }
+
+        .model-selector label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .model-selector select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .model-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .model-description {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #d1d5db;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .predict-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .predict-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            display: none;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* Results */
+        .results-section {
+            display: none;
+        }
+
+        .result-card {
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-model {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .confidence {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .recommendation-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .recommendation-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Probabilities */
+        .probabilities {
+            margin-top: 25px;
+        }
+
+        .probabilities h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .prob-item {
+            margin-bottom: 12px;
+        }
+
+        .prob-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .prob-bar {
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.95em;
+        }
+
+        /* Status Colors */
+        .status-healthy {
+            background: #d1fae5;
+            border-color: #22c55e;
+        }
+
+        .status-disease {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .status-warning-result {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🐄 Unified Cattle Classification System</h1>
+            <p>AI-Powered Multi-Model Disease Detection Platform</p>
+            <div class="status-badge {{ 'status-success' if total_loaded > 0 else 'status-warning' }}">
+                {{ total_loaded }} / {{ models|length }} Models Loaded
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Upload & Controls -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📤 Upload & Classify</h2>
+                    <p>Select a model and upload an image for analysis</p>
+                </div>
+
+                <!-- Model Selection -->
+                <div class="model-selector">
+                    <label for="modelSelect">Select Classification Model:</label>
+                    <select id="modelSelect">
+                        <option value="">-- Choose a Model --</option>
+                        {% for key, info in models.items() %}
+                        <option value="{{ key }}" {{ 'disabled' if not info.loaded else '' }}>
+                            {{ info.name }} {{ '(Not Loaded)' if not info.loaded else '' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <div class="model-description" id="modelDescription">
+                        Select a model to see its description
+                    </div>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <h3>Upload Image</h3>
+                    <p>Drag & drop or click to browse</p>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose Image
+                    </button>
+                </div>
+
+                <!-- Image Preview -->
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImg" class="preview-img" alt="Preview">
+                    <button class="remove-btn" onclick="removeImage()">×</button>
+                </div>
+
+                <!-- Predict Button -->
+                <button class="predict-btn" id="predictBtn" onclick="predictImage()" disabled>
+                    🔍 Analyze Image
+                </button>
+
+                <!-- Loading -->
+                <div class="loading" id="loadingSection">
+                    <div class="spinner"></div>
+                    <p>Analyzing image with AI model...</p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📊 Results</h2>
+                    <p>Classification results will appear here</p>
+                </div>
+
+                <div class="results-section" id="resultsSection">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🤖 Powered by TensorFlow & Flask | MobileNetV2 Architecture</p>
+            <p>© 2024 Cattle Classification System - All Rights Reserved</p>
+        </div>
+    </div>
+
+    <script>
+        const modelDescriptions = {{ models|tojson }};
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const modelSelect = document.getElementById('modelSelect');
+        const modelDescription = document.getElementById('modelDescription');
+        const predictBtn = document.getElementById('predictBtn');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+
+        let currentFile = null;
+
+        // Model selection handler
+        modelSelect.addEventListener('change', function() {
+            const selectedModel = this.value;
+            if (selectedModel && modelDescriptions[selectedModel]) {
+                modelDescription.textContent = modelDescriptions[selectedModel].description;
+                modelDescription.style.display = 'block';
+            } else {
+                modelDescription.textContent = 'Select a model to see its description';
+            }
+            checkPredictButton();
+        });
+
+        // File input handler
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                handleFile(this.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            currentFile = file;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.style.display = 'block';
+                uploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+            
+            resultsSection.style.display = 'none';
+            checkPredictButton();
+        }
+
+        function removeImage() {
+            currentFile = null;
+            fileInput.value = '';
+            imagePreview.style.display = 'none';
+            uploadArea.style.display = 'block';
+            resultsSection.style.display = 'none';
+            checkPredictButton();
+        }
+
+        function checkPredictButton() {
+            predictBtn.disabled = !(currentFile && modelSelect.value);
+        }
+
+        async function predictImage() {
+            if (!currentFile || !modelSelect.value) return;
+
+            // Show loading
+            loadingSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            formData.append('model_type', modelSelect.value);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + (data.error || 'Prediction failed'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                loadingSection.style.display = 'none';
+            }
+        }
+
+        function displayResults(result) {
+            resultsSection.style.display = 'block';
+
+            // Determine card class
+            let cardClass = 'result-card';
+            if (result.status === 'HEALTHY') {
+                cardClass += ' status-healthy';
+            } else if (result.status === 'DISEASE') {
+                cardClass += ' status-disease';
+            } else if (result.status === 'WARNING') {
+                cardClass += ' status-warning-result';
+            }
+
+            // Build probabilities HTML
+            let probabilitiesHTML = '<div class="probabilities"><h3>Probability Distribution</h3>';
+            for (const [className, prob] of Object.entries(result.probabilities)) {
+                const percentage = (prob * 100).toFixed(2);
+                const color = getColorForClass(className);
+                probabilitiesHTML += `
+                    <div class="prob-item">
+                        <div class="prob-label">
+                            <span>${className}</span>
+                            <span>${percentage}%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill" style="width: ${percentage}%; background: ${color};">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            probabilitiesHTML += '</div>';
+
+            // Build results HTML
+            resultsSection.innerHTML = `
+                <div class="${cardClass}">
+                    <div class="result-header">
+                        <div class="result-icon">${result.icon}</div>
+                        <div class="result-title" style="color: ${result.color}">
+                            ${result.predicted_class}
+                        </div>
+                        <div class="result-model">${result.model_name}</div>
+                        <div class="confidence" style="color: ${result.color}">
+                            Confidence: ${result.confidence_percent}
+                        </div>
+                        ${result.risk_level ? `<div class="risk-badge" style="background: ${result.color}">${result.risk_level} RISK</div>` : ''}
+                    </div>
+
+                    <div class="recommendation-box" style="border-left-color: ${result.color}">
+                        <h4>💡 Recommendation</h4>
+                        <p>${result.recommendation}</p>
+                    </div>
+
+                    ${probabilitiesHTML}
+                </div>
+            `;
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getColorForClass(className) {
+            const lower = className.toLowerCase();
+            if (lower.includes('healthy') || lower.includes('normal')) {
+                return 'linear-gradient(135deg, #22c55e, #16a34a)';
+            } else if (lower.includes('non') || lower.includes('not')) {
+                return 'linear-gradient(135deg, #f59e0b, #d97706)';
+            } else {
+                return 'linear-gradient(135deg, #ef4444, #dc2626)';
+            }
+        }
+    </script>
+</body>
+</html>
