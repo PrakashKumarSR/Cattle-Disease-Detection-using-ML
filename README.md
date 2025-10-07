@@ -64,3 +64,60 @@ Footrot Detector (MobileNet)
 Udder Health Classifier (MobileNet)
 
 Tongue Disease Classifier (MobileNetV2)
+
+
+📜 License
+
+This project is for educational and research purposes.
+
+
+3. Scroll down and click **Commit changes → Commit directly to the main branch**.
+
+---
+
+### 🔹 Step 3 — Edit `.gitignore` file
+1. Back on your repo page, click **Add file → Create new file**.  
+2. In the file name box, type:  
+
+
+.gitignore
+
+3. Paste this content:
+
+```text
+# Python ignores
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE/editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Temporary files
+*.log
+*.tmp
+
+# Uploaded or generated files
+static/uploads/
+static/tmp/
+
+# Large ML model files
+models/*.h5
+models/*.keras
+models/*.pb
+models/*.tflite
